@@ -1,7 +1,7 @@
 // pages/dashboard.tsx
-
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
+import { useEffect, useState } from "react";
+import Head from "next/head";
+import Image from "next/image";
 
 type Item = {
   id: string;
@@ -10,44 +10,38 @@ type Item = {
 };
 
 export default function Dashboard() {
-  // Dummy state, replace with API calls & auth
   const [coins, setCoins] = useState(75);
   const [itemsForSale, setItemsForSale] = useState<Item[]>([
-    { id: '1', title: 'Mini Drafter Model X', price: 300 },
-    { id: '5', title: 'Used Engineering Book', price: 150 },
+    { id: "1", title: "Mini Drafter Model X", price: 300 },
+    { id: "5", title: "Used Engineering Book", price: 150 },
   ]);
   const [itemsBought, setItemsBought] = useState<Item[]>([
-    { id: '3', title: 'Physics Textbook', price: 200 },
+    { id: "3", title: "Physics Textbook", price: 200 },
   ]);
   const [loading, setLoading] = useState(false);
 
-  // Withdraw handler
   const handleWithdraw = async () => {
     if (coins < 60) {
-      alert('You need at least 60 coins to withdraw.');
+      alert("You need at least 60 coins to withdraw.");
       return;
     }
     setLoading(true);
-
     try {
-      // Call withdraw API here with userId (replace with real user ID)
-      const res = await fetch('/api/withdraw', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: 'u1' }),
+      const res = await fetch("/api/withdraw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: "u1" }),
       });
       const data = await res.json();
-
       if (res.ok) {
-        alert('Withdrawal successful! 50 coins credited to your bank.');
+        alert("Withdrawal successful! 50 coins credited to your bank.");
         setCoins(data.coins);
       } else {
-        alert(data.message || 'Withdrawal failed');
+        alert(data.message || "Withdrawal failed");
       }
     } catch (error) {
-      alert('Something went wrong');
+      alert("Something went wrong");
     }
-
     setLoading(false);
   };
 
@@ -55,65 +49,123 @@ export default function Dashboard() {
     <>
       <Head>
         <title>Dashboard | NSRIT Exchange</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+          rel="stylesheet"
+        />
       </Head>
 
-      <main className="max-w-4xl mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-6">Your Dashboard</h1>
+      <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-white to-blue-200 font-poppins">
+        {/* Header */}
+        <header className="max-w-6xl mx-auto flex items-center justify-between p-6">
+          <div className="flex items-center space-x-4">
+            {/* NSRIT Logo */}
+            <Image
+              src="https://upload.wikimedia.org/wikipedia/en/thumb/f/fb/NSRIT_Logo.png/220px-NSRIT_Logo.png"
+              alt="NSRIT Logo"
+              width={60}
+              height={60}
+              className="rounded-full shadow-md"
+              priority
+            />
+            <h1 className="text-3xl font-extrabold text-blue-900">
+              NSRIT Exchange
+            </h1>
+          </div>
+          <nav>
+            <button
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md shadow-md transition"
+              onClick={() => alert("Logout functionality pending")}
+            >
+              Logout
+            </button>
+          </nav>
+        </header>
 
-        {/* Coins section */}
-        <section className="mb-8 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-2">Coin Balance</h2>
-          <p className="text-indigo-600 text-5xl font-bold">{coins} 🪙</p>
-          <button
-            onClick={handleWithdraw}
-            disabled={loading || coins < 60}
-            className={`mt-4 px-6 py-2 rounded text-white ${
-              coins >= 60
-                ? 'bg-indigo-600 hover:bg-indigo-700'
-                : 'bg-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {loading ? 'Processing...' : 'Withdraw Coins'}
-          </button>
-          {coins < 60 && (
-            <p className="mt-2 text-sm text-gray-600">
-              You need at least 60 coins to withdraw.
-            </p>
-          )}
-        </section>
+        <main className="max-w-6xl mx-auto p-6">
+          {/* Coins Section */}
+          <section className="mb-10 bg-white rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-indigo-700 mb-2">
+                Your Coin Balance
+              </h2>
+              <p className="text-indigo-900 text-6xl font-extrabold flex items-center space-x-3">
+                <span>{coins}</span>
+                <span className="text-4xl">🪙</span>
+              </p>
+              {coins < 60 && (
+                <p className="mt-2 text-gray-500 font-medium">
+                  You need at least 60 coins to withdraw.
+                </p>
+              )}
+            </div>
+            <button
+              onClick={handleWithdraw}
+              disabled={loading || coins < 60}
+              className={`mt-6 md:mt-0 px-8 py-3 rounded-full text-white font-semibold shadow-lg transition ${
+                coins >= 60
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {loading ? "Processing..." : "Withdraw Coins"}
+            </button>
+          </section>
 
-        {/* Items for Sale */}
-        <section className="mb-8 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Items You Are Selling</h2>
-          {itemsForSale.length === 0 ? (
-            <p>You have not posted any items yet.</p>
-          ) : (
-            <ul className="list-disc list-inside space-y-2">
-              {itemsForSale.map((item) => (
-                <li key={item.id}>
-                  <span className="font-semibold">{item.title}</span> - ₹{item.price}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          {/* Items for Sale */}
+          <section className="mb-10">
+            <h2 className="text-2xl font-semibold text-blue-900 mb-6">
+              Items You're Selling
+            </h2>
+            {itemsForSale.length === 0 ? (
+              <p className="text-gray-600 italic">You have not posted any items yet.</p>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2">
+                {itemsForSale.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white p-6 rounded-xl shadow hover:shadow-xl transition cursor-pointer"
+                  >
+                    <h3 className="text-lg font-semibold text-indigo-800 mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-indigo-600 font-semibold text-xl">₹{item.price}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
 
-        {/* Items Bought */}
-        <section className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Items You Bought</h2>
-          {itemsBought.length === 0 ? (
-            <p>You have not bought any items yet.</p>
-          ) : (
-            <ul className="list-disc list-inside space-y-2">
-              {itemsBought.map((item) => (
-                <li key={item.id}>
-                  <span className="font-semibold">{item.title}</span> - ₹{item.price}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </main>
+          {/* Items Bought */}
+          <section>
+            <h2 className="text-2xl font-semibold text-blue-900 mb-6">
+              Items You Bought
+            </h2>
+            {itemsBought.length === 0 ? (
+              <p className="text-gray-600 italic">You have not bought any items yet.</p>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2">
+                {itemsBought.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white p-6 rounded-xl shadow hover:shadow-xl transition cursor-pointer"
+                  >
+                    <h3 className="text-lg font-semibold text-indigo-800 mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-indigo-600 font-semibold text-xl">₹{item.price}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </main>
+
+        {/* Footer */}
+        <footer className="max-w-6xl mx-auto text-center text-gray-600 p-6 mt-12">
+          © {new Date().getFullYear()} NSRIT Exchange — Built with ❤️ by You
+        </footer>
+      </div>
     </>
   );
 }
